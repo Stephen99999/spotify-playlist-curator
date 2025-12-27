@@ -8,7 +8,7 @@ const Landing = () => {
 
   const handleSpotifyLogin = () => {
     // 1. Point to your FastAPI login endpoint
-    const backendLoginUrl = "http://localhost:8000/login";
+    const backendLoginUrl = "http://127.0.0.1:8000/login";
     
     // 2. Redirect the entire window to that URL
     window.location.href = backendLoginUrl;
