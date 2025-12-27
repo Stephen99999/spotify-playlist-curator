@@ -7,10 +7,12 @@ const Landing = () => {
   const navigate = useNavigate();
 
   const handleSpotifyLogin = () => {
-    // Simulate login - in production, this would trigger Spotify OAuth
-    navigate("/home");
-  };
-
+    // 1. Point to your FastAPI login endpoint
+    const backendLoginUrl = "http://localhost:8000/login";
+    
+    // 2. Redirect the entire window to that URL
+    window.location.href = backendLoginUrl;
+};
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
