@@ -41,9 +41,19 @@ const Home = () => {
 
   const fetchUserProfile = async (token: string) => {
     try {
+      // FIX 1: Use the REAL Spotify API URL
       const response = await fetch("https://api.spotify.com/v1/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
+      
+      if (!response.ok) {
+         if (response.status === 401) {
+             handleLogout(); // Token expired
+             return;
+         }
+         throw new Error("Failed to fetch profile");
+      }
+
       const data = await response.json();
       setUser({
         name: data.display_name,
@@ -63,19 +73,26 @@ const Home = () => {
 
     try {
       // Calling your FastAPI Endpoint
-      const response = await fetch(`http://localhost:8000/recommend?token=${token}&size=40`);
+      const response = await fetch(`https://spotify-curator-backend.onrender.com/recommend?token=${token}&size=50`);
+      
+      if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.detail || "Failed to curate");
+      }
+
       const data = await response.json();
 
       // Transform FastAPI data to match your PlaylistDisplay component
       const formattedPlaylist = {
         title: "Your Discovery Mix",
-        description: "AI-ranked tracks based on your listening patterns and the current time of day.",
+        description: "AI-ranked tracks based on your realtime listening history.",
         tracks: data.recommendations.map((track: any) => ({
           id: track.id,
           name: track.name,
           artist: track.artist,
-          album: "Discovery", // Or fetch album if added to backend
-          albumArt: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=100&h=100&fit=crop", 
+          album: "Discovery", 
+          // FIX 2: Use the real album art from the backend
+          albumArt: track.albumArt || "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?w=100&h=100&fit=crop", 
           spotifyUrl: track.url,
           score: track.score
         }))
@@ -83,20 +100,49 @@ const Home = () => {
 
       setPlaylist(formattedPlaylist);
       
-      // TRIGGER THE SYNC (The Feedback Loop)
-      // This tells the backend to check if the user eventually plays these songs
-      fetch(`http://localhost:8000/sync?token=${token}`);
+      // FIX 3: Removed the /sync call because your new backend does it automatically during recommendation!
 
-    } catch (error) {
+    } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Curating Failed",
-        description: "Make sure your FastAPI server is running on localhost:8000",
+        description: error.message || "Make sure your FastAPI server is running.",
       });
     } finally {
       setIsCurating(false);
     }
   };
+  const handleSavePlaylist = async () => {
+    if (!token || !playlist) return;
+  
+    try {
+      const trackIds = playlist.tracks.map((t: any) => t.id);
+      
+      const response = await fetch("https://spotify-curator-backend.onrender.com/save-playlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: token,
+          track_ids: trackIds,
+          name: `Discovery Mix - ${new Date().toLocaleDateString()}`
+        }),
+      });
+  
+      if (!response.ok) throw new Error("Failed to save playlist");
+  
+      toast({
+        title: "Success!",
+        description: "Playlist saved to your Spotify library. Use Smart shuffle for a little spice",
+      });
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Save Failed",
+        description: "Could not export to Spotify. Try again later.",
+      });
+    }
+  };
+  
 
   const handleLogout = () => {
     localStorage.removeItem("spotify_token");
@@ -145,7 +191,8 @@ const Home = () => {
           <PlaylistDisplay 
             playlist={playlist} 
             onRegenerate={handleCurate} 
-            onSave={() => toast({ title: "Saved to Spotify!" })} 
+            onSave={handleSavePlaylist}
+            onBack={()=> setPlaylist(null)} 
             isRegenerating={isCurating} 
           />
         )}

@@ -1,4 +1,4 @@
-import { RefreshCw, Share2, Save, Music } from "lucide-react";
+import { RefreshCw, Share2, Save, Music, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TrackCard from "./TrackCard";
 import SpotifyLogo from "./SpotifyLogo";
@@ -21,10 +21,11 @@ interface PlaylistDisplayProps {
   };
   onRegenerate: () => void;
   onSave: () => void;
+  onBack:() => void;
   isRegenerating?: boolean;
 }
 
-const PlaylistDisplay = ({ playlist, onRegenerate, onSave, isRegenerating }: PlaylistDisplayProps) => {
+const PlaylistDisplay = ({ playlist, onRegenerate, onSave, onBack, isRegenerating }: PlaylistDisplayProps) => {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
@@ -39,6 +40,10 @@ const PlaylistDisplay = ({ playlist, onRegenerate, onSave, isRegenerating }: Pla
       {/* Playlist Header */}
       <div className="flex flex-col md:flex-row items-start md:items-end gap-6 mb-8">
         <div className="w-48 h-48 rounded-lg bg-gradient-to-br from-primary/80 to-primary/20 flex items-center justify-center shadow-2xl glow-spotify">
+        <Button variant="ghost" onClick={onBack} className="flex items-center gap-2">
+          <ChevronLeft className="w-4 h-4" />
+          Back
+        </Button>
           <Music className="w-24 h-24 text-primary-foreground" />
         </div>
         
