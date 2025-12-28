@@ -27,7 +27,7 @@ const Home = () => {
       localStorage.setItem("spotify_token", urlToken);
       fetchUserProfile(urlToken);
       // Clean the URL so the token isn't visible
-      window.history.replaceState({}, document.title, "/home");
+      window.history.replaceState({}, document.title, "/");
     } else {
       const storedToken = localStorage.getItem("spotify_token");
       if (!storedToken) {
