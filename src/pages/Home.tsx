@@ -72,8 +72,16 @@ const Home = () => {
     setPlaylist(null);
 
     try {
-      // Calling your FastAPI Endpoint
-      const response = await fetch(`https://spotify-curator-backend.onrender.com/recommend?token=${token}&size=50`);
+      const response = await fetch("https://spotify-curator-backend.onrender.com/recommend", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      token: token,
+      size: 50,
+    }),
+  });
       
       if (!response.ok) {
           const errData = await response.json();
