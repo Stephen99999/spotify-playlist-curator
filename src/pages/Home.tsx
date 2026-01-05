@@ -73,15 +73,15 @@ const Home = () => {
 
     try {
       const response = await fetch("https://spotify-curator-backend.onrender.com/recommend", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      token: token,
-      size: 50,
-    }),
-  });
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        cache: "no-store",
+        body: JSON.stringify({ size: 50 }),
+      });
+      
       
       if (!response.ok) {
           const errData = await response.json();
