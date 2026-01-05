@@ -155,6 +155,7 @@ const Home = () => {
   const handleLogout = () => {
     localStorage.removeItem("spotify_token");
     navigate("/");
+    window.location.reload();
   };
 
   return (
